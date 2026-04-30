@@ -14,6 +14,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      kafkajs:
+        specifier: ^2.2.4
+        version: 2.2.4
       socket.io:
         specifier: ^4.8.3
         version: 4.8.3
@@ -24,12 +27,12 @@ importers:
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
-      tsc:
-        specifier: ^2.0.4
-        version: 2.0.4
       tsc-watch:
         specifier: ^7.2.0
         version: 7.2.0(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 
@@ -248,6 +251,10 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  kafkajs@2.2.4:
+    resolution: {integrity: sha512-j/YeapB1vfPT2iOIUn/vxdyKEuhuY2PxMBvf5JWux6iSaukAccrMtXEY/Lb7OvavDhOWME589bpLrEdnVHjfjA==}
+    engines: {node: '>=14.0.0'}
+
   map-stream@0.1.0:
     resolution: {integrity: sha512-CkYQrPYZfWnu/DAmVCpTSX/xHpKZ80eKh2lAkyA6AJTef6bW+6JpbQZN5rofum7da+SyN1bi5ctTm+lTfcCW3g==}
 
@@ -423,10 +430,6 @@ packages:
     hasBin: true
     peerDependencies:
       typescript: '*'
-
-  tsc@2.0.4:
-    resolution: {integrity: sha512-fzoSieZI5KKJVBYGvwbVZs/J5za84f2lSTLPYf6AGiIf43tZ3GNrI1QzTLcjtyDDP4aLxd46RTZq1nQxe7+k5Q==}
-    hasBin: true
 
   type-is@2.0.1:
     resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
@@ -737,6 +740,8 @@ snapshots:
 
   isexe@2.0.0: {}
 
+  kafkajs@2.2.4: {}
+
   map-stream@0.1.0: {}
 
   math-intrinsics@1.1.0: {}
@@ -935,8 +940,6 @@ snapshots:
       ps-tree: 1.2.0
       string-argv: 0.3.2
       typescript: 6.0.3
-
-  tsc@2.0.4: {}
 
   type-is@2.0.1:
     dependencies:

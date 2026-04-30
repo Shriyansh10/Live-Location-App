@@ -1,27 +1,27 @@
-import http from 'node:http';
-import 'dotenv/config'
+import http from "node:http";
+import "dotenv/config";
+import { startConsumer } from "./module/Location/kafka-consumer.js";
 
-import app from './app.js';
-import { Server } from 'socket.io';
-
+import app from "./app.js";
+// import {getIO} from "./module/Location/locationUpdate.js";
+import { initIO } from "./common/config/socket.js";
 
 const port = process.env.PORT || 8000;
-const io = new Server();
 
-async function main(){
+export async function main() {
+  try {
+    const server = http.createServer(app);
+    initIO(server);
 
-    try{
-        const server = http.createServer(app);
-        io.attach(server);
-        
-        server.listen(port, () => {
-            console.log(`Server is running at http://localhost:${port} in ${process.env.NODE_ENV} mode`)
-            
-        })
-    }catch(err){
-        console.log(err);
-    }
-
-}   
+    server.listen(port, () => {
+      console.log(
+        `Server is running at http://localhost:${port} in ${process.env.NODE_ENV} mode`,
+      );
+    });
+    startConsumer();
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 main();
