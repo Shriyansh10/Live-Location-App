@@ -4,7 +4,7 @@ export const kafkaClient = new Kafka({
   clientId: "shriyansh",
   brokers: [process.env.KAFKA_BROKER!],
   ssl: {
-    rejectUnauthorized: false,
+    ca: [process.env.KAFKA_CA!]
   },
   sasl: {
     mechanism: "plain",
