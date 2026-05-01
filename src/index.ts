@@ -8,7 +8,7 @@ import { initIO } from "./common/config/socket.js";
 
 const port = process.env.PORT || 8000;
 
-export async function main() {
+async function main() {
   try {
     const server = http.createServer(app);
     initIO(server);

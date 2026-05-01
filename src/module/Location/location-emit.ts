@@ -1,21 +1,18 @@
-import { getIO } from "../../common/config/socket.js";
-import { main } from "../../index.js";
+import { getIO, LocationData } from "../../common/config/socket.js";
+type Data = {
+  socketId: string;
+  data: LocationData;
+};
 
-export const emitEvents = (data: any) => {
-  let io;
-  try {
-    io = getIO();
-  } catch (error) {
-    main();
-  }
-
-  if (!io) io = getIO();
+export const emitEvents = (data: Data) => {
+  const io = getIO();
 
   console.log("Clients connected ", io.engine.clientsCount);
 
-  io.emit("server:location:updates", {
+  io.emit("server:location:update", {
     socketId: data.socketId,
     latitude: data.data.latitude,
     longitude: data.data.longitude,
+    name: data.data.name,
   });
 };

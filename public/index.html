@@ -2,8 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Viewport settings optimized for mobile web apps -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Live Locations</title>
+    <!-- Leaflet CSS -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -12,26 +17,226 @@
     />
 
     <style>
+      /* Reset and Mobile-First Base Styles */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+
+      body {
+        background-color: #f0f2f5;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        /* Using dvh for better mobile browser support (accounts for address bars) */
+        height: 100dvh;
+        overflow: hidden;
+      }
+
+      /* Navbar - Now contains Title, Status, and Textbox */
+      .app-navbar {
+        background: #1a1a2e;
+        color: #ffffff;
+        padding: 16px 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 2000; /* Above the map */
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav-header h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      /* Status Indicator styling updated for dark navbar */
+      #status {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #e2e8f0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        backdrop-filter: blur(4px);
+      }
+
+      /* Textbox in Navbar */
+      .custom-textbox {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        font-size: 1rem;
+        color: #1e293b;
+        background-color: #f8fafc;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      .custom-textbox:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        background-color: #ffffff;
+      }
+
+      /* Map Container */
+      .workspace {
+        flex: 1;
+        position: relative;
+        width: 100%;
+      }
+
       #map {
-        height: 70vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      /* Floating Action Bar (Phone Call Style) */
+      .floating-controls {
+        position: fixed;
+        bottom: 30px; /* Floats above the bottom edge */
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 40px); /* Responsive width with margins */
+        max-width: 360px; /* Limits width on larger screens */
+        display: flex;
+        gap: 16px;
+        z-index: 2000; /* Ensures it stays above Leaflet controls */
+      }
+
+      /* Call-style Buttons */
+      button {
+        flex: 1;
+        padding: 18px 24px;
+        border: none;
+        border-radius: 50px; /* Full pill shape */
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: white;
+        cursor: pointer;
+        transition:
+          transform 0.1s ease,
+          box-shadow 0.2s ease,
+          filter 0.2s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* Green "Call" Style Start Button */
+      button#start {
+        background: linear-gradient(135deg, #10b981, #059669);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+      }
+
+      /* Red "End Call" Style Stop Button */
+      button#stop {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+      }
+
+      /* Tap/Active state for mobile */
+      button:active {
+        transform: translateY(4px) scale(0.98);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        filter: brightness(0.9);
+      }
+
+      /* Desktop adjustments (Media Query) */
+      @media (min-width: 768px) {
+        .app-navbar {
+          flex-direction: row;
+          align-items: center;
+          padding: 16px 30px;
+        }
+
+        .nav-header {
+          flex: 1;
+          justify-content: flex-start;
+          gap: 20px;
+        }
+
+        .custom-textbox {
+          width: 300px;
+        }
+
+        .floating-controls {
+          bottom: 40px; /* slightly higher on desktop */
+        }
       }
     </style>
   </head>
 
   <body>
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>
-    <div id="map"></div>
+    <!-- Mobile-First App Header -->
+    <header class="app-navbar">
+      <div class="nav-header">
+        <h1>Live Locations</h1>
+        <div id="status">Not Started</div>
+      </div>
+      <input
+        type="text"
+        id="customInput"
+        class="custom-textbox"
+        placeholder="Device / User Name..."
+      />
+    </header>
 
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <!-- Map Container -->
+    <div class="workspace">
+      <div id="map"></div>
+    </div>
+
+    <!-- Floating Bottom Controls (Call App Style) -->
+    <div class="floating-controls">
+      <button id="start">Start</button>
+      <button id="stop">Stop</button>
+    </div>
+
+    <!-- Leaflet JS & Socket.io -->
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
     <script src="/socket.io/socket.io.js"></script>
+
+    <!-- Unmodified JavaScript -->
     <script>
       const map = L.map("map").setView([27.5, 78], 5);
+      const socket = io();
+
+      let ownMarker = null;
+      let getLocationInterval;
+
+      const remoteData = new Map();
+
+      const startButton = document.getElementById("start");
+      const stopButton = document.getElementById("stop");
+      const statusText = document.getElementById("status");
+
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution:
@@ -45,9 +250,12 @@
               (position) => {
                 const longitude = position.coords.longitude;
                 const latitude = position.coords.latitude;
-                // console.log(latitude)
-
-                resolve({ latitude, longitude });
+                const safeUserName = escapeHTML(document.getElementById("customInput").value) || 'Unknown User';
+                resolve({
+                  latitude,
+                  longitude,
+                  name: safeUserName
+                });
               },
               (error) => {
                 reject(error);
@@ -60,72 +268,105 @@
         });
       };
 
-      const socket = io();
-      let ownMarker = null;
-      let getLocationInterval;
+      async function main() {
+        getLocationInterval = setInterval(() => {
+          getUserCurrentLocation().then((data) => {
+            ownMarker = createMarker(
+              data.latitude,
+              data.longitude,
+              ownMarker,
+              "You are here",
+            );
+            socket.emit("client:location:update", data);
+          });
+        }, 1 * 1000);
+      }
 
-      const createMarker = (latitude, longitude, marker) => {
+      document.addEventListener("click", (e) => {
+        if (e.target.id === "start") {
+          if (!getLocationInterval) {
+            statusText.innerText = "Running";
+            main();
+          }
+        } else if (e.target.id === "stop") {
+          if (getLocationInterval) {
+            statusText.innerText = "Stopped";
+            socket.emit("client:location:stop", socket.id);
+            removeMarker(getLocationInterval, ownMarker);
+            ownMarker = null;
+          }
+        }
+      });
+
+      // socket listeners
+
+      socket.on(
+        "server:location:update",
+        ({ socketId, latitude, longitude, name }) => {
+          if (socketId !== socket.id) {
+            const existingMarker = remoteData.get(socketId);
+            if (existingMarker) {
+              const updatedMarker = createMarker(
+                latitude,
+                longitude,
+                existingMarker.marker,
+              );
+              remoteData.set(socketId, { marker: updatedMarker });
+            } else {
+              remoteData.set(socketId, {
+                marker: createMarker(
+                  latitude,
+                  longitude,
+                  null,
+                  `${name} is here`,
+                ),
+              });
+            }
+          }
+        },
+      );
+
+      socket.on("server:location:stop", (socketId) => {
+        if (remoteData.has(socketId)) {
+          const existingMarker = remoteData.get(socketId)["marker"];
+          remoteData.delete(socketId);
+          removeMarker(null, existingMarker);
+        }
+      });
+
+      // helper functions
+
+      const createMarker = (latitude, longitude, marker, popupText) => {
         if (!marker) {
           marker = L.marker([latitude, longitude])
             .addTo(map)
-            .bindPopup("You are here");
+            .bindPopup(popupText);
         } else {
           marker.setLatLng([latitude, longitude]);
         }
         return marker;
       };
 
-      async function main() {
-        getLocationInterval = setInterval(() => {
-          getUserCurrentLocation().then((data) => {
-            ownMarker = createMarker(data.latitude, data.longitude, ownMarker);
-            socket.emit("client:location:update", data);
-          });
-        }, 2 * 1000);
-      }
-
-      const startButton = document.getElementById("start");
-      const stopButton = document.getElementById("stop");
-
-      document.addEventListener("click", (e) => {
-        if (e.target.id === "start") {
-          if (!getLocationInterval) {
-            console.log("Executing...");
-            main();
-          }
-        } else if (e.target.id === "stop") {
-          console.log("Stopped");
+      const removeMarker = (intervalId, marker) => {
+        if (intervalId) {
           clearInterval(getLocationInterval);
           getLocationInterval = null;
-          map.removeLayer(ownMarker);
-          marker = null;
         }
-      });
+        map.removeLayer(marker);
+      };
 
-      //   {socketId, latitude, longitude}
-      const remoteData = new Map();
-      socket.on(
-        "server:location:updates",
-        ({ socketId, latitude, longitude }) => {
-          if (!socketId) {
-            console.log(socketId, socket.id)
-            const existingMarker = remoteData.get(socketId);
-            if (existingMarker.marker) {
-              const updatedMarker = createMarker(
-                latitude,
-                longitude,
-                existingMarker,
-              );
-              remoteData.set(socketId, { marker: updatedMarker });
-            } else {
-              const newMarker = null;
-              remoteData.set(socketId, {
-                marker: createMarker(latitude, longitude, newMarker),
-              });
-            }
-          }
-        },
-      );
+      function escapeHTML(str) {
+        if (!str) return "";
+        return str.replace(/[&<>'"]/g, function (tag) {
+          return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&#39;",
+            '"': "&quot;",
+          }[tag];
+        });
+      }
     </script>
   </body>
 </html>
